@@ -15,12 +15,13 @@ public class Player : MonoBehaviour
     [SerializeField]
     float speed = 10f;
 
-    Rigidbody2D _rb;
+    Rigidbody _rb;
     Vector2 _movement;
     //Camera _camera;
     //private Vector2 screenBounds;
     float _playerWidth;
 
+    float rotationSpeed = 5.0f;
 
     private float xMin, xMax;
     private float yMin, yMax;
@@ -32,7 +33,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _rb = GetComponent<Rigidbody2D>();
+        _rb = GetComponent<Rigidbody>();
 
         //_camera = GetComponent<Camera>();
         //screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
@@ -50,7 +51,7 @@ public class Player : MonoBehaviour
         float yWidth = screenBounds.y * .5f;
 
         //_playerWidth = GetComponent<SpriteRenderer>().bounds.size.x / 2;
-        var _playerWidth = GetComponent<SpriteRenderer>().bounds.size.x * .5f; // Working with a simple box here, adapt to you necessity
+        var _playerWidth = GetComponent<SphereCollider>().bounds.size.x * .5f; // Working with a simple box here, adapt to your necessity
 
         yMin = -yWidth + _playerWidth; // lower bound
         yMax = yWidth - _playerWidth; // upper bound
@@ -94,14 +95,23 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         moveCharacter(_movement);
+
+        //Rotate
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 direction = (mousePosition - transform.position);
+
+        float xAngle = rotationSpeed * direction.x * Time.deltaTime;
+        float yAngle = rotationSpeed * direction.y * Time.deltaTime;
+        float zAngle = rotationSpeed * 1.0f * Time.deltaTime;
+        _rb.transform.Rotate(xAngle, yAngle, zAngle, Space.Self);
     }
 
     void moveCharacter(Vector2 direction)
     {
         _rb.MovePosition((Vector2)transform.position + (direction * speed * Time.deltaTime));
 
-        Debug.Log($"xMin:{xMin},xMax:{xMax},yMin:{yMin},yMax:{yMax}");
-        Debug.Log($"({_rb.position.x},{_rb.position.y})");
+        //Debug.Log($"xMin:{xMin},xMax:{xMax},yMin:{yMin},yMax:{yMax}");
+        //Debug.Log($"({_rb.position.x},{_rb.position.y})");
     }
 
     void ShootBullet()
